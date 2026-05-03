@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ahorcado Pro - Mobile</title>
+    <style>
+        :root {
+            --primary: #38bdf8;
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --text: #f8fafc;
+            --danger: #f43f5e;
+            --success: #10b981;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 15px;
+        }
+
+        .card {
+            background: var(--surface);
+            width: 100%;
+            max-width: 400px;
+            padding: 25px;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+            text-align: center;
+        }
+
+        .hidden { display: none !important; }
+
+        /* Pantalla de Inicio */
+        input {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: 2px solid #334155;
+            background: #0f172a;
+            color: white;
+            font-size: 18px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        input:focus { border-color: var(--primary); outline: none; }
+
+        .btn-main {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            color: #0f172a;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 16px;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        /* Área de Juego */
+        #hangman-svg {
+            width: 140px;
+            height: 140px;
+            stroke: var(--text);
+            stroke-width: 4;
+            fill: none;
+            margin-bottom: 10px;
+        }
+
+        .word-container {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: 5px;
+            margin: 20px 0;
+            color: var(--primary);
+            min-height: 40px;
+        }
+
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            margin-top: 15px;
+        }
+
+        .key {
+            background: #334155;
+            padding: 14px 0;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+
+        .key.hit { background: var(--success); }
+        .key.miss { background: var(--danger); }
+        .key.disabled { opacity: 0.3; pointer-events: none; }
+
+        #msg { font-weight: bold; margin: 10px 0; font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <!-- FASE CONFIG -->
+    <div id="setup">
+        <h2 style="margin-top:0">Ahorcado</h2>
+        <p style="color: #94a3b8">Jugador 1: Escribe la palabra</p>
+        <input type="password" id="wordInput" placeholder="PALABRA SECRETA" autocomplete="off">
+        <button class="btn-main" onclick="init()">Empezar Juego</button>
+    </div>
+
+    <!-- FASE JUEGO -->
+    <div id="game" class="hidden">
+        <svg id="hangman-svg" viewBox="0 0 100 100">
+            <!-- La base siempre visible -->
+            <path d="M20 90 L80 90 M30 90 L30 10 L70 10 L70 20" stroke-width="3" />
+            <!-- Partes del cuerpo -->
+            <circle id="step0" class="hidden" cx="70" cy="30" r="10" />
+            <line id="step1" class="hidden" x1="70" y1="40" x2="70" y2="65" />
+            <line id="step2" class="hidden" x1="70" y1="48" x2="52" y2="38" />
+            <line id="step3" class="hidden" x1="70" y1="48" x2="88" y2="38" />
+            <line id="step4" class="hidden" x1="70" y1="65" x2="55" y2="82" />
+            <line id="step5" class="hidden" x1="70" y1="65" x2="85" y2="82" />
+        </svg>
+
+        <div id="wordDisplay" class="word-container"></div>
+        <div id="msg"></div>
+        <div id="keyboard" class="keyboard"></div>
+        
+        <button id="retry" class="btn-main hidden" style="margin-top:20px; background:#475569; color:white" onclick="location.reload()">Reiniciar</button>
+    </div>
+</div>
+
+<script>
+    let targetWord = "";
+    let status = [];
+    let fails = 0;
+
+    function init() {
+        const val = document.getElementById('wordInput').value.trim().toUpperCase();
+        if(val.length < 2) return alert("Escribe una palabra más larga");
+        
+        targetWord = val.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        status = Array(targetWord.length).fill("_");
+        
+        document.getElementById('setup').classList.add('hidden');
+        document.getElementById('game').classList.remove('hidden');
+        
+        renderGame();
+        drawKeyboard();
+    }
+
+    function drawKeyboard() {
+        const letters = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split("");
+        const container = document.getElementById('keyboard');
+        letters.forEach(l => {
+            const div = document.createElement('div');
+            div.className = 'key';
+            div.innerText = l;
+            div.onclick = () => play(l, div);
+            container.appendChild(div);
+        });
+    }
+
+    function play(letter, el) {
+        if(el.classList.contains('disabled')) return;
+        el.classList.add('disabled');
+
+        if(targetWord.includes(letter)) {
+            el.classList.add('hit');
+            for(let i=0; i<targetWord.length; i++) {
+                if(targetWord[i] === letter) status[i] = letter;
+            }
+        } else {
+            el.classList.add('miss');
+            document.getElementById(`step${fails}`).classList.remove('hidden');
+            fails++;
+        }
+
+        renderGame();
+        check();
+    }
+
+    function renderGame() {
+        document.getElementById('wordDisplay').innerText = status.join(" ");
+    }
+
+    function check() {
+        const m = document.getElementById('msg');
+        if(!status.includes("_")) {
+            m.innerText = "¡GANASTE! 🎉";
+            m.style.color = "var(--primary)";
+            end();
+        } else if(fails >= 6) {
+            m.innerText = "PERDISTE 💀";
+            m.innerHTML += `<br><small style="color:#94a3b8">Era: ${targetWord}</small>`;
+            m.style.color = "var(--danger)";
+            end();
+        }
+    }
+
+    function end() {
+        document.getElementById('keyboard').style.pointerEvents = 'none';
+        document.getElementById('retry').classList.remove('hidden');
+    }
+</script>
+</body>
+</html>
