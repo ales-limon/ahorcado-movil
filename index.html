@@ -3,51 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ahorcado Pro Max</title>
+    <title>Ahorcado Pro - Categorías</title>
     <style>
         :root { --p: #38bdf8; --bg: #0f172a; --s: #1e293b; --t: #f8fafc; --d: #f43f5e; --ok: #10b981; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--t); font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 10px; }
-        .card { background: var(--s); width: 100%; max-width: 450px; padding: 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; position: relative; }
+        .card { background: var(--s); width: 100%; max-width: 450px; padding: 20px; border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); text-align: center; border: 1px solid #334155; }
         .hidden { display: none !important; }
         
-        .menu-btn { width: 100%; padding: 15px; margin: 8px 0; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; background: #334155; color: white; }
-        .btn-primary { background: var(--p); color: #0f172a; }
-        input { width: 100%; padding: 15px; border-radius: 10px; border: 2px solid #334155; background: #0f172a; color: white; text-align: center; font-size: 18px; margin-bottom: 10px; outline: none; }
+        .menu-btn { width: 100%; padding: 16px; margin: 8px 0; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; background: #334155; color: white; border-bottom: 3px solid #1e293b; }
+        .menu-btn:active { transform: translateY(2px); border-bottom-width: 1px; }
+        .btn-primary { background: var(--p); color: #0f172a; border-bottom-color: #0284c7; }
+        
+        input { width: 100%; padding: 15px; border-radius: 12px; border: 2px solid #334155; background: #0f172a; color: white; text-align: center; font-size: 18px; margin-bottom: 10px; outline: none; }
         
         .stats { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold; font-size: 14px; }
-        #timer { color: var(--p); }
-        #score-display { color: var(--ok); }
+        #timer { color: var(--p); background: rgba(56, 189, 248, 0.1); padding: 5px 10px; border-radius: 20px; }
         
-        #hangman-svg { width: 130px; height: 130px; stroke: white; stroke-width: 4; fill: none; margin: 10px auto; stroke-linecap: round; }
-        .word-display { font-size: 28px; font-weight: bold; letter-spacing: 4px; margin: 15px 0; min-height: 40px; color: var(--p); text-transform: uppercase; }
+        #hangman-svg { width: 120px; height: 120px; stroke: white; stroke-width: 4; fill: none; margin: 5px auto; }
+        .word-display { font-size: 26px; font-weight: bold; letter-spacing: 4px; margin: 15px 0; color: var(--p); text-transform: uppercase; }
         
-        .keyboard { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
-        .key { background: #334155; padding: 12px 0; border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .cat-tag { font-size: 12px; background: #475569; color: white; padding: 4px 12px; border-radius: 50px; margin-bottom: 10px; display: inline-block; }
+        
+        .keyboard { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+        .key { background: #334155; padding: 14px 0; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; }
         .key.hit { background: var(--ok); }
         .key.miss { background: var(--d); }
         .key.off { opacity: 0.2; pointer-events: none; }
         
-        #msg { font-size: 1.2rem; font-weight: bold; margin: 10px 0; min-height: 1.5em; }
-        .high-score { font-size: 12px; color: #94a3b8; margin-top: 5px; }
+        #msg { font-size: 1.1rem; font-weight: bold; margin: 10px 0; min-height: 1.5em; }
     </style>
 </head>
 <body>
 
 <div class="card">
     <div id="m-main">
-        <h1 style="margin:0">Ahorcado Pro</h1>
-        <div class="high-score" id="high-score-text">Récord: 0 pts</div>
-        <p style="color:#94a3b8; font-size:14px; margin: 15px 0;">¿Cómo quieres jugar hoy?</p>
-        <button class="menu-btn btn-primary" onclick="setupGame('cpu')">Solo (vs Computadora)</button>
-        <button class="menu-btn" onclick="setupGame('local')">Duelo (2 Jugadores)</button>
+        <h1 style="margin:0 0 5px 0">Ahorcado Pro</h1>
+        <div id="high-score-text" style="font-size:12px; color:#94a3b8; margin-bottom:15px">Récord: 0 pts</div>
+        <button class="menu-btn btn-primary" onclick="showScreen('m-cat')">Solo (vs Computadora)</button>
+        <button class="menu-btn" onclick="showScreen('m-setup')">Duelo (2 Jugadores)</button>
+    </div>
+
+    <div id="m-cat" class="hidden">
+        <h2>Elige Categoría</h2>
+        <button class="menu-btn" onclick="launchGame('cpu', 'ANIMALES')">🦁 Animales</button>
+        <button class="menu-btn" onclick="launchGame('cpu', 'PAÍSES')">🌎 Países</button>
+        <button class="menu-btn" onclick="launchGame('cpu', 'TECNOLOGÍA')">💻 Tecnología</button>
+        <button class="menu-btn" onclick="launchGame('cpu', 'COMIDA')">🍕 Comida</button>
+        <button class="menu-btn" onclick="showScreen('m-main')" style="background:transparent; border:none">← Volver</button>
     </div>
 
     <div id="m-setup" class="hidden">
         <h2>Palabra Secreta</h2>
-        <input type="password" id="secretInput" placeholder="Escribe la palabra aquí">
-        <button class="menu-btn btn-primary" onclick="launchGame()">¡Empezar!</button>
-        <button class="menu-btn" onclick="location.reload()">Cancelar</button>
+        <p style="font-size:14px; color:#94a3b8">Jugador 1 escribe la palabra:</p>
+        <input type="password" id="secretInput" placeholder="Ej: FERRARI">
+        <button class="menu-btn btn-primary" onclick="launchGame('local')">¡Empezar Duelo!</button>
+        <button class="menu-btn" onclick="showScreen('m-main')" style="background:transparent; border:none">← Volver</button>
     </div>
 
     <div id="m-game" class="hidden">
@@ -55,6 +66,7 @@
             <span id="score-display">Pts: 0</span>
             <span id="timer">⏳ 00s</span>
         </div>
+        <div id="current-cat" class="cat-tag">Categoría</div>
         
         <svg id="hangman-svg" viewBox="0 0 100 100">
             <path d="M20 90 L80 90 M30 90 L30 10 L70 10 L70 20" />
@@ -70,59 +82,43 @@
         <div id="msg"></div>
         <div id="kb" class="keyboard"></div>
         
-        <button id="btn-res" class="menu-btn hidden" style="margin-top:20px" onclick="location.reload()">Volver al Menú</button>
+        <button id="btn-res" class="menu-btn hidden" style="margin-top:20px" onclick="location.reload()">Nuevo Juego</button>
     </div>
 </div>
 
 <script>
-    const dictionary = ["HERRERIA", "SOFTWARE", "DESARROLLO", "SISTEMA", "COMPUTADORA", "CELULAR", "AUTOLAVADO", "MEXICO", "INTELIGENCIA", "ALGORITMO"];
-    let target = "";
-    let status = [];
-    let fails = 0;
-    let mode = "";
-    let timeLeft = 0;
-    let timerInterval;
-    let currentScore = 0;
+    const cats = {
+        'ANIMALES': ["ELEFANTE", "COCODRILO", "CANGURO", "JIRAFA", "LEOPARDO", "TIBURON", "AVESTRUZ", "ORNITORRINCO"],
+        'PAÍSES': ["ALEMANIA", "ARGENTINA", "TAILANDIA", "EGIPTO", "CANADA", "COLOMBIA", "AUSTRALIA", "NORUEGA"],
+        'TECNOLOGÍA': ["ALGORITMO", "CELULAR", "INTERNET", "PROGRAMACION", "INTELIGENCIA", "SATELITE", "ROBOTICA"],
+        'COMIDA': ["HAMBURGUESA", "ESPAGUETI", "ENCHILADAS", "LASAÑA", "CHOCOLATE", "GUACAMOLE", "PIZZA"]
+    };
 
-    // Cargar récord al iniciar
-    document.getElementById('high-score-text').innerText = `Récord: ${localStorage.getItem('hangman_highscore') || 0} pts`;
+    let target = "", status = [], fails = 0, timeLeft = 0, timerInterval, currentScore = 0;
 
-    function setupGame(m) {
-        mode = m;
-        if(mode === 'cpu') {
-            launchGame();
-        } else {
-            document.getElementById('m-main').classList.add('hidden');
-            document.getElementById('m-setup').classList.remove('hidden');
-        }
+    function showScreen(id) {
+        document.querySelectorAll('.card > div').forEach(d => d.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
     }
 
-    async function launchGame() {
+    function launchGame(mode, category = '') {
         if(mode === 'cpu') {
-            document.getElementById('msg').innerText = "Buscando palabra...";
-            document.getElementById('m-main').classList.add('hidden');
-            document.getElementById('m-game').classList.remove('hidden');
-            
-            try {
-                const res = await fetch('https://random-word-api.herokuapp.com/word?lang=es');
-                const data = await res.json();
-                target = data[0].toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            } catch (e) {
-                target = dictionary[Math.floor(Math.random() * dictionary.length)];
-            }
+            const list = cats[category];
+            target = list[Math.floor(Math.random() * list.length)];
+            document.getElementById('current-cat').innerText = category;
         } else {
             const val = document.getElementById('secretInput').value.trim().toUpperCase();
-            if(val.length < 2) return alert("Escribe una palabra válida");
+            if(val.length < 2) return alert("Palabra muy corta");
             target = val.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            document.getElementById('m-setup').classList.add('hidden');
-            document.getElementById('m-game').classList.remove('hidden');
+            document.getElementById('current-cat').innerText = "DUELO LOCAL";
         }
 
-        document.getElementById('msg').innerText = "";
         status = Array(target.length).fill("_");
         fails = 0;
-        timeLeft = 20 + (target.length * 4); // Tiempo dinámico
+        // TIEMPO DUPLICADO: 40 segundos base + 8 por cada letra
+        timeLeft = 40 + (target.length * 8); 
         
+        showScreen('m-game');
         render();
         genKB();
         startTimer();
@@ -141,7 +137,7 @@
     function updateTimerUI() {
         const el = document.getElementById('timer');
         el.innerText = `⏳ ${timeLeft}s`;
-        el.style.color = timeLeft <= 10 ? "var(--d)" : "var(--p)";
+        if(timeLeft <= 15) el.style.color = "var(--d)";
     }
 
     function genKB() {
@@ -172,20 +168,11 @@
         check();
     }
 
-    function render() {
-        document.getElementById('wordDisplay').innerText = status.join(" ");
-    }
+    function render() { document.getElementById('wordDisplay').innerText = status.join(" "); }
 
     function check() {
-        if(!status.includes("_")) {
-            // Calcular puntos: (Tiempo restante * 10) + (Letras adivinadas * 5)
-            const points = (timeLeft * 10) + (target.length * 5);
-            currentScore += points;
-            document.getElementById('score-display').innerText = `Pts: ${currentScore}`;
-            end(true, "¡GANASTE! 🎉");
-        } else if(fails >= 6) {
-            end(false, "EL AHORCADO GANÓ 💀");
-        }
+        if(!status.includes("_")) end(true, "¡VICTORIA! 🎉");
+        else if(fails >= 6) end(false, "PERDISTE 💀");
     }
 
     function end(win, txt) {
@@ -193,18 +180,13 @@
         const m = document.getElementById('msg');
         m.innerText = txt;
         m.style.color = win ? "var(--ok)" : "var(--d)";
-        if(!win) m.innerHTML += `<br><span style="font-size:14px; color:#94a3b8">Era: ${target}</span>`;
-        
-        // Guardar récord
-        const hi = localStorage.getItem('hangman_highscore') || 0;
-        if(currentScore > hi) {
-            localStorage.setItem('hangman_highscore', currentScore);
-            m.innerHTML += `<br><span style="color:var(--p)">¡NUEVO RÉCORD!</span>`;
-        }
-
+        if(!win) m.innerHTML += `<br><small style="color:#94a3b8">Era: ${target}</small>`;
         document.getElementById('kb').style.pointerEvents = 'none';
         document.getElementById('btn-res').classList.remove('hidden');
     }
+
+    // Cargar récord
+    document.getElementById('high-score-text').innerText = `Récord: ${localStorage.getItem('hangman_highscore') || 0} pts`;
 </script>
 </body>
 </html>
